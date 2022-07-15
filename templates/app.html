@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block content %}
+    <div class="container">
+        <h1>DEA(M) - portfolio constructor</h1>
+        {% if user.is_anonymous %}
+           <a class="btn btn-primary" href="{% url 'login' %}">Login</a>
+        {% else %}
+            <div class="alert alert-primary" role="alert">
+
+                Olá, {{ user.get_full_name }}
+            </div>
+            
+                <a class="btn btn-primary" href="{% url 'relatoriocarteira' %}">Relatório - Carteira</a>
+                <a class="btn btn-primary" href="{% url 'downloadp' %}">Faça download em Excel</a>
+                <a class="btn btn-primary" href="{% url 'uploadfile' %}">DEA - Calculadora</a>
+                <a class="btn btn-primary" href="{% url 'sobre' %}">Sobre o aplicativo.</a>
+                <a class="btn btn-primary" href="{% url 'logout' %}">Logout</a>
+        {% endif %}
+    </div>
+
+{% endblock %}

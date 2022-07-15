@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% block content %}
+    <div class="container">
+        <p></p>
+        <h1>DEA(M) - portfolio constructor</h1>
+        <p></p>
+        <br>
+        {% if user.is_anonymous %}
+           <a class="btn btn-primary" href="{% url 'login' %}">Login</a>
+        {% else %}
+            <div class="alert alert-primary" role="alert">
+                Olá, {{ user.get_full_name }}
+                
+            </div>
+
+            <div class="alert alert-primary" role="alert">
+                <p></p>
+                <br>
+                <h5>Nesta parte, é possível importar.</h5>
+                <h5>O objetivo deste appcativo é apenas acadêmico.</h5>
+                <p></p>
+                <h6>É possível inserir uma planilha Excel para fazer a anápse DEA, 
+                    seguindo as seguintes instruções:
+                </h6>
+                <p></p>
+                    <p>A planilha deve ter cabeçalho;</p>
+                    <p>A primeira coluna deve ser preenchida com os nomes das DMU's;</p>
+                    <p>As colunas que são inputs devem começar com a letra i com - , por exemplo: i - produção;</p>
+                    <p>As colunas que são outputs devem começar com a letra o com - , por exemplo: o - lucro;</p>
+                    <p>Deixar o excel com apenas uma página e não deixar espaço vazio na tabela;</p>
+                    <p>Neste <a href="{% url 'exemplodea' %}" style="color:red; a:hover{color: green;text-decoration: none;}">link</a>, está disponibipzado um exemplo de excel.</p>
+            
+                <p></p>
+                
+
+     
+                    <form  id = "form_id"   method = "POST" action = "{% url 'uploadfile'%}" enctype="multipart/form-data"> {% csrf_token %}
+                        <p>Selecione o método DEA desejado: </p>{{form.dea_method}}
+                        <p></p>
+                        <p>Faça upload do arquivo em formato .xlsx (Excel): </p>{{form.file}}
+                        <p></p>
+                        <p></p>
+                        <input class="btn btn-primary" type = "submit" value="Enviar"/>
+                    </form>
+                    <p></p>
+
+                <p></p>
+                <p></p>
+            </div>     
+
+            <a class="btn btn-primary" href="{% url 'app' %}">Voltar</a>
+            <a class="btn btn-primary" href="{% url 'logout' %}">Logout</a>
+
+
+        {% endif %}
+    </div>
+<p></p>
+<p></p>
+<p></p>
+{% endblock %}
+
+

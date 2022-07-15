@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% block content %}
+    <div class="container">
+        <p></p>
+        <h1>DEA(M) - portfolio constructor</h1>
+        <p></p>
+        <br>
+        {% if user.is_anonymous %}
+           <a class="btn btn-primary" href="{% url 'login' %}">Login</a>
+        {% else %}
+            <div class="alert alert-primary" role="alert">
+                Olá, {{ user.get_full_name }}
+                
+            </div>
+
+            <div class="alert alert-primary" role="alert">
+                <p></p>
+                <br>
+                <h6>Neste aplicativo, terão disponíveis apenas empresas do setor elétrico na bolsa de valores Brasileira.</h6>
+                <h6>O objetivo deste aplicativo é apenas acadêmico.</h6>
+                <p></p>
+                <br>
+
+                <form action="{% url 'download'%}" method="post" autocomplete="off">
+                    {% csrf_token %}
+                    {{ form.as_p  }}
+                    <input class="btn btn-primary" type="submit" value="Submit" >
+
+                </form>
+                <p></p>
+                <p>Tempo máximo estimado para execução: 30 segundos.</p>
+                <br>
+                <p>Verifique, em caso de erro, se o período escolhido corresponde de fato à participação da empresa na B3.</p>
+                <p>Verifique no site: <a href="https://br.financas.yahoo.com/" target="_blank" rel="noopener noreferrer">Yahoo Finance</a></p>
+                <p></p>
+            </div>     
+            <a class="btn btn-primary" href="{% url 'download' %}">Limpar dados</a>
+            <a class="btn btn-primary" href="{% url 'app' %}">Voltar</a>
+            <a class="btn btn-primary" href="{% url 'logout' %}">Logout</a>
+            <p></p>
+                  {% if chart %}
+                <div>
+                    <h2>Resultados</h2>
+                    <img src="data:image/png;Base64,{{chart|safe}}" alt="" >
+                    <p></p>
+                </div>      
+                <div>
+                    <p></p>
+                    <p></p>
+                    {% include 'output.html' %}
+                </div>
+                {% endif %}
+
+        {% endif %}
+    </div>
+
+{% endblock %}
+
+

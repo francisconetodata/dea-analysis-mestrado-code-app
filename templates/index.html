@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block content %}
+    <div class="container">
+        <h1>DEA(M) - portfolio constructor</h1>
+        {% if user.is_anonymous %}
+            <p></p>
+           <a class="btn btn-primary" href="{% url 'login' %}">Login</a>
+        {% else %}
+            <div class="alert alert-primary" role="alert">
+                Seja bem-vindo(a) {{ user.get_full_name }}!
+            </div>
+            <a class="btn btn-primary" href="{% url 'app' %}">Clique aqui para acessar o aplicativo</a>
+            <a class="btn btn-primary" href="{% url 'logout' %}">Logout</a>
+        {% endif %}
+    </div>
+{% endblock %}

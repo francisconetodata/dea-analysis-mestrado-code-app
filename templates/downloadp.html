@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% block content %}
+    <div class="container">
+        <p></p>
+        <h1>DEA(M) - portfolio constructor</h1>
+        <p></p>
+        <br>
+        {% if user.is_anonymous %}
+           <a class="btn btn-primary" href="{% url 'login' %}">Login</a>
+        {% else %}
+            <div class="alert alert-primary" role="alert">
+                Olá, {{ user.get_full_name }}
+                
+            </div>
+
+            <div class="alert alert-primary" role="alert">
+                <p></p>
+                <br>
+                <h6>Neste aplicativo, terão disponíveis apenas empresas do setor elétrico na bolsa de valores Brasileira.</h6>
+                <h6>O objetivo deste aplicativo é apenas acadêmico.</h6>
+                <p></p>
+
+                <p>Nesta parte, você poderá fazer download em excel dos dados diários das empresas selecionadas.</p>
+                <p>Fonte: Yahoo Finance</p>
+                <br>
+
+                <form action="{% url 'downloadp'%}" method="post" autocomplete="off">
+                    {% csrf_token %}
+                    {{ form.as_p  }}
+                    <input class="btn btn-primary" type="submit" value="Submit" >
+
+                </form>
+                <p></p>
+                <p></p>
+            </div>     
+
+            <a class="btn btn-primary" href="{% url 'app' %}">Voltar</a>
+            <a class="btn btn-primary" href="{% url 'logout' %}">Logout</a>
+
+
+        {% endif %}
+    </div>
+<p></p>
+<p></p>
+<p></p>
+{% endblock %}
+
+

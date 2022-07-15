@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block content %}
+    <div class="container">
+        <h1>DEA(M) - portfolio constructor</h1>
+        {% if user.is_anonymous %}
+            <p></p>
+           <a class="btn btn-primary" href="{% url 'login' %}">Login</a>
+        {% else %}
+            <div class="alert alert-primary" role="alert">
+                Olá, {{ user.get_full_name }}!
+            </div>
+            <div class="alert alert-primary" role="alert">
+                <p>Este aplicativo foi desenvolvido para finalidade acadêmica.</p>
+                <p>Elaborado pelo aluno: Francisco de Assis Pereira Neto</p>
+                <p>Voltado para defesa da dissertação de mestrado. O Framework usado é o Django do Python.</p>
+                <br>
+                <p>Foram usados alguns pacotes serão descritos a seguir:</p>
+                {{pack|safe}}
+            </div>
+            <a class="btn btn-primary" href="{% url 'app' %}">Voltar</a>
+            <a class="btn btn-primary" href="{% url 'logout' %}">Logout</a>
+        {% endif %}
+    </div>
+{% endblock %}

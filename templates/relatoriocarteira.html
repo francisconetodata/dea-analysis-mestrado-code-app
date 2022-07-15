@@ -1,0 +1,163 @@
+{% extends 'base.html' %}
+{% block content %}
+    <div class="container">
+        <p></p>
+        <h1>DEA(M) - portfolio constructor</h1>
+        <p></p>
+        <br>
+        {% if user.is_anonymous %}
+           <a class="btn btn-primary" href="{% url 'login' %}">Login</a>
+        {% else %}
+            <div class="alert alert-primary" role="alert">
+                Olá, {{ user.get_full_name }}
+                
+            </div>
+
+            <div class="alert alert-primary" role="alert">
+                <p></p>
+                <br>
+                <h5>Neste aplicativo, terão disponíveis apenas empresas do setor elétrico na bolsa de valores Brasileira.</h5>
+                <h5>O objetivo deste aplicativo é apenas acadêmico.</h5>
+                <p></p>
+                <p></p>
+                <p>A data de simulação deve ser maior que a data final. Será o período final da simulação da carteira construída.</p>
+                <p>A carteira será construída com base na análise dos dados do período da data inicial e da data final e, posteriormente, simulada da data final até a data de simulação.</p>
+                <p>Informações sobre datas disponíveis no banco de dados.</p>
+                <p>Disponível nome da empresa e período de tempo disponível de dados.</p>
+            
+                <a class="btn btn-primary" href="{% url 'downloadbase' %}">Informações sobre os dados.</a>
+                <br><br>
+                <br><br>
+                <form action="{% url 'relatoriocarteira'%}" method="post" autocomplete="off">
+                    {% csrf_token %}
+                    {{ form.as_p  }}
+                    <input class="btn btn-primary" type="submit" value="Submit" >
+
+                </form>
+                <p></p>
+                
+                <br>
+                <p>Verifique, em caso de erro, se o período escolhido corresponde de fato à participação da empresa na B3.</p>
+                <p>Verifique no site: <a href="https://br.financas.yahoo.com/" target="_blank" rel="noopener noreferrer">Yahoo Finance</a></p>
+                <p></p>
+            </div>     
+
+            <a class="btn btn-primary" href="{% url 'relatoriocarteira' %}">Limpar dados</a>
+            <a class="btn btn-primary" href="{% url 'app' %}">Voltar</a>
+            <a class="btn btn-primary" href="{% url 'logout' %}">Logout</a>
+            <p></p>
+    
+            {% if chart5 %}
+            {% if chart6 %}
+            {% if chart7 %}
+            {% if chart8 %}
+            {% if chart9 %}
+       
+                    <h1>Resultados</h1>
+                    <br>
+                    <br>
+                    <h5>Empresas que foram retiradas por terem mais de {{per01|safe}}% dos dados faltantes: {{empresas_ret|safe}}.</h5>
+                    <br>
+                    <h5>Empresas que foram retiradas por terem mais de {{per02|safe}}% dos retornos iguais a zero: {{empresas_ret_|safe}}.</h5>
+                    <br>
+                    <br>
+                    <br>
+                    <p>Data inicial: {{inicio|safe}}</p>
+                    <p>Data fim: {{fim|safe}}</p>
+                    <p>Data simulação (final): {{simulador|safe}}</p>
+                    <br>
+                    <br>
+                    <br>
+                    <h5>Dados de entradas e saídas do modelo DEA - Método: {{dea_method|safe}}.</h5>
+                    <br>
+                    {{dea|safe}}
+                    <br>
+                    <p>Considera-se saídas (outputs) os retornos e entradas a volatilidade e o beta. </p>
+                    <br>
+                    <br>
+                    <h5>Empresas pré selecionadas pelo método DEA. (eficiência = 1)</h5>
+                    <br>
+                    {{empresas|safe}}
+                    <br>
+                    <h5> Simulação da fronteira eficiente e carteiras aleatórias</h5>
+                    <p>Barra lateral do gráfico representa o índice sharpe das carteiras</p>
+                    <br>
+                    <p></p>
+                    <img src="data:image/png;Base64,{{chart5|safe}}" alt="" style="vertical-align:middle;border:1px solid gray" >
+                    <p></p>
+                    <br>
+                    <br>
+                    <h5> Preços normalizados</h5>
+                    <br>
+                    <p></p>
+                    {{chart6|safe}}
+                    <p></p>
+                    <br>
+                    <br>
+                    <br>     
+                    <h5> Carteira que maximixa o índice de Sharpe - DEA(M)- pesos</h5>
+                    <br>
+                    <p></p>
+                    <p></p>
+                    
+                    {{chart7|safe}}
+                    <p></p>
+                    <h5> Carteira que maximixa o índice de Sharpe - DEA(M) - pesos - Tabela</h5>
+                    <p></p>
+                    {{portmark|safe}}
+                    <br>    
+                    <h5> Comparação das carteiras DEA(M), DEA(1/N) e índice Ibovespa.</h5>
+                    <br>
+                    <p></p>
+                    {{chart8|safe}}
+
+                    <br>    <br><br><br>
+                    <h5>Índice de Sharpe das carteiras</h5>
+                    <br>
+                    <p>Índice de Sharpe DEA(1/N): {{sharpe_unif|safe}}</p>
+                    <p>Índice de Sharpe DEA(M): {{sharpe_m|safe}}</p>
+                    <p></p>
+                    <p></p>
+
+                    <h5> Simulação da carteira da data final a data de simulação e comparação.</h5>
+                    <p></p>
+                    <p></p>
+                    <p></p>
+                    {{chart11|safe}}
+                    <p></p>
+                    <p></p>
+                    <p></p>
+                    
+                    <p></p>
+                    <br><br><br><br>          <br><br><br><br>
+                        <p></p>
+                        <h2>Informações adcionais.</h2>
+                    <h3> Correlação entre os ativos </h3>
+                    <p></p>
+                    <br>
+                
+                    <p>Correlação de Pearson</p>
+                    <p></p>
+                    {{pearson|safe}}
+                    <p></p>
+                    <p>Correlação de Spearman</p>
+                    <p></p>
+                    {{speaman|safe}}
+                    <p></p>
+                    <p>Correlação de Kendall</p>
+                    <p></p>
+                    {{kendall|safe}}
+                    <p></p>
+                    
+            {% endif %}
+            {% endif %}
+            {% endif %}
+            {% endif %}
+            {% endif %}
+
+        {% endif %}
+    </div>
+
+{% endblock %}
+
+
