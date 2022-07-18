@@ -221,7 +221,7 @@ def mark_carteira(ticker,
     df_aux_ibov = df_aux_ibov.dropna()
     dados___ = dados.copy()
     dados___.sort_index(inplace=True)
-    retornos = dados___.pct_change()
+    retornos = dados___.dropna().astype(float).pct_change()
     retornos_medios = retornos.mean()
     cov_matrix = retornos.cov()
     corrl_p = retornos.dropna().corr(method='pearson').round(3).reset_index()
@@ -607,6 +607,7 @@ def mark_carteira(ticker,
         y= ['Ibovespa','DEA(M)','DEA(1/N)'],
         title='Simulação de investimento unitário em cada carteira - Comparação'
     )
+    df_final_merge_.to_excel('resultado_simu.xlsx')
     graph6 = fig_simulador.to_html()
     return [graph, fffff, graph1, graph2, graph3, graph4, beta, alfa,
             corrl_p, corrl_s, corrl_k, dfkk, nomess, graph5, beta1, alfa1,
