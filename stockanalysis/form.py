@@ -49,7 +49,7 @@ class DownloadP(forms.Form):
     CHOICES = Stock.objects.values_list('symbol_stock', 'name_stock').order_by('symbol_stock')
     data_inicial = forms.DateField(
         label='Data Incial',
-        initial= datetime.date(2014,1,1),
+        initial= datetime.date(2010,1,1),
         help_text='Formato: AAAA-MM-DD')
     data_final = forms.DateField(
         label='Data Final',
