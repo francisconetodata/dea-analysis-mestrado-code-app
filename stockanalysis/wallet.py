@@ -186,7 +186,7 @@ def mark_carteira(ticker,
             )
     df.columns = ticker
     dados = df.copy()
-    print(df)
+    #print(df)
     #f (len(dados.dropna())/len(dados)) > (per_01/100):
     #    coluns = dados.isnull().sum()>=((per_01/100))*len(dados)
     #    empresas_retiradas = list(coluns[coluns].index.values)
@@ -199,7 +199,7 @@ def mark_carteira(ticker,
     #    empresas_retiradas_str_ = " , ".join(empresas_retiradas_)
     #    dados = dados.drop(columns=(coluns[coluns].index.values))
     #   ticker = list(dados.columns)
-    #print(empresas_retiradas_str_)
+    ##print(empresas_retiradas_str_)
     #ticker = names_tickers_aux
     df_ibov_data = pd.DataFrame()
     data_final = dados.index.max()
@@ -274,10 +274,10 @@ def mark_carteira(ticker,
     periodo_03 = retornos_prod.iloc[int(
         (tamanho/3)):int(tamanho)].product(axis=0)
     volatilidade = retornos.dropna().std()
-    print(retornos)
+    #print(retornos)
     retornos__ = retornos.merge(df_aux_ibov, how='inner', left_index=True,
                                 right_index=True)
-    print(retornos__)
+    #print(retornos__)
     retornos__.columns = ticker + ['BVSP']
     retornos__ = retornos__.astype(float).dropna()
     betas = []
@@ -306,7 +306,7 @@ def mark_carteira(ticker,
     #dfk.to_excel('exemplodea.xlsx')
     primResults = primDEA.solve()
     dfk['Eficiência'] = primResults['Efficiency'].round(3)
-    print(dfk)
+    #print(dfk)
     dados_dea_x = dfk.copy()
     fig = go.Figure(data=[go.Table(
     header=dict(values=list(dfk.columns),
@@ -346,7 +346,7 @@ def mark_carteira(ticker,
         dados_t.index = pd.to_datetime(dados_t['data'])
         dados_t = dados_t.drop(columns=['data'])
         preços[t] = dados_t
-    print(preços)
+    #print(preços)
     preços = preços.dropna()
     preços_normalizados = (preços/preços.iloc[0])
     cov_matrix = retornos.cov()
@@ -388,7 +388,7 @@ def mark_carteira(ticker,
     unif_cart = resultados_frame.iloc[4]
     sharpe_unif = round(unif_cart['sharpe'], 4)
     mark_sharpe = round(max_sharpe_port['sharpe'], 4)
-    #print(sharpe_unif, mark_sharpe)
+    ##print(sharpe_unif, mark_sharpe)
     dados = dados.dropna()
     retorno_carteira_unif = 0
 
@@ -518,7 +518,7 @@ def mark_carteira(ticker,
     )
     nomess = fig.to_html()
     fffff_ = fffff
-    #print(nomes)
+    ##print(nomes)
     fig = go.Figure(data=[go.Table(
     header=dict(values=list(fffff_.columns),
                 fill_color='paleturquoise',
@@ -533,8 +533,8 @@ def mark_carteira(ticker,
     )
     fffff = fig.to_html()
     tickers_ibov_ = list(fffff__.Empresa)
-    #print(tickers_ibov_)
-    #print(list(fffff__.Peso))
+    ##print(tickers_ibov_)
+    ##print(list(fffff__.Peso))
     dados_yahoo = pd.read_sql(f"""
                         SELECT ss.date_ref, ss.price_close, a.symbol_stock  
                         FROM stockanalysis_pricedatastocks ss
@@ -574,15 +574,15 @@ def mark_carteira(ticker,
     ibov.columns = ['date_ref','^BVSP']
     ibov = ibov.drop(columns='date_ref')
     ibov = ibov / ibov.iloc[0]
-    #print(dados_yahoo)
-    #print(dados_yahoo.columns)
+    ##print(dados_yahoo)
+    ##print(dados_yahoo.columns)
     #dados_yahoo.dropna(how='all', inplace=True)
     #dados_yahoo.dropna(axis=1, inplace=True, thresh=246)
     retorno = dados_yahoo.pct_change()
     retorno_acumulado = (1 + retorno).cumprod()
     retorno_acumulado.iloc[0] = 1
-    #print(retorno)
-    #print(retorno_acumulado)
+    ##print(retorno)
+    ##print(retorno_acumulado)
     carteiram = list(fffff__.Peso)* retorno_acumulado.loc[: , list(dados_yahoo.columns)]
     carteiram['saldo'] = carteiram.sum(axis=1)
     carteiram["retorno"] = carteiram['saldo'].pct_change()
@@ -608,7 +608,7 @@ def mark_carteira(ticker,
         title='Simulação de investimento unitário em cada carteira - Comparação'
     )
     df_final_merge_.to_excel('resultado_simu.xlsx')
-    print(df_final_merge_.tail(1).reset_index(drop=True))
+    #print(df_final_merge_.tail(1).reset_index(drop=True))
     fig_tab_simu = go.Figure(data=[go.Table(
     header=dict(values=list(df_final_merge_.tail(1).reset_index(drop=True).columns),
                 fill_color='paleturquoise',
