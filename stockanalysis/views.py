@@ -7,6 +7,7 @@ from threading import Thread
 #from somewhere import hand
 import django_excel as excel
 import openpyxl
+from django.contrib import messages
 
 
 import pandas as pd
@@ -138,7 +139,10 @@ def relatorio_carteira(request):
             empresas_ret_ = mark[23]
             dados_dea = mark[24]
             resultado_simulador = mark[25]
-                     
+            import random
+            numberee = random.sample(range(114444), k=1)[0]
+            dados_dea.to_excel('var/tmp/django_cache/'+f'report_dea_{numberee}.xlsx')
+            request.session['listing_list'] = [f'report_dea_{numberee}.xlsx']
             form = StockInputCart()
             response = render(request, 'relatoriocarteira.html', {'form': form,
                                                       'chart': chart,
@@ -179,6 +183,7 @@ def relatorio_carteira(request):
             sharp_m = []
             inicio = []
             fim = []
+            dados_dea = []
             simulador = []
             empresas_ret = []
             empresas_ret_ = []
@@ -219,6 +224,7 @@ def relatorio_carteira(request):
         empresas = []
         chart3 = []
         inicio = []
+        dados_dea = []
         fim = []
         empresas_ret_ = []
         simulador = []
@@ -272,10 +278,29 @@ def relatorio_carteira(request):
                                                       'simulador': simulador,
                                                       'empresas_ret': empresas_ret,                                                      
                                                       'sharpe_m': sharp_m,
+                                                      'dados_dea':dados_dea,
                                                       'resultado_simulador':resultado_simulador})
     return response
 
-
+def download_relatorio_dea(request):    
+    try:
+        listing_list = request.session.get('listing_list')
+        df_exx = pd.read_excel('var/tmp/django_cache/'+listing_list[0])
+        response = HttpResponse(
+                    content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        response['Content-Disposition'] = f'attachment; filename="{listing_list[0]}"'
+        df_exx.to_excel(response)
+    #os.remove(listing_list[0])
+    except:
+        messages.error('O arquivo não está mais disponível, favor refazer a análise.')
+    else: 
+        listing_list = request.session.get('listing_list')
+        df_exx = pd.read_excel('var/tmp/django_cache/'+listing_list[0])
+        response = HttpResponse(
+                    content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        response['Content-Disposition'] = f'attachment; filename="{listing_list[0]}"'
+        df_exx.to_excel(response)
+        return response
 
 def pacotes(request):
     pacotes = pd.read_excel('requirements.xlsx')
