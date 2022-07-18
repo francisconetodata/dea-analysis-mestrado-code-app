@@ -28,15 +28,15 @@ class StockInputCart(forms.Form):
         help_text='Inserir um número de 0 a 20',max_value=20, min_value=0)
     data_inicial = forms.DateField(
         label='Data Incial',
-        initial=(datetime.date.today()-datetime.timedelta(300)),
+        initial= datetime.date(2014,1,1),
         help_text='Formato: AAAA-MM-DD')
     data_final = forms.DateField(
         label='Data Final',
-        initial=(datetime.date.today()-datetime.timedelta(100)),
+        initial= datetime.date(2020,1,1),
         help_text='Formato: AAAA-MM-DD')
     data_simulacao = forms.DateField(
         label='Data Simulação',
-        initial=(datetime.date.today()-datetime.timedelta(20)),
+        initial= datetime.date(2022,1,1),
         help_text='Formato: AAAA-MM-DD')
     dea_method = forms.ChoiceField(label='Método DEA',
                                    choices=(('VRS', 'VRS'), ('CRS', 'CRS')))
@@ -54,11 +54,11 @@ class DownloadP(forms.Form):
     CHOICES = Stock.objects.values_list('symbol_stock', 'name_stock').order_by('symbol_stock')
     data_inicial = forms.DateField(
         label='Data Incial',
-        initial=(datetime.date.today()-datetime.timedelta(100)),
+        initial= datetime.date(2014,1,1),
         help_text='Formato: AAAA-MM-DD')
     data_final = forms.DateField(
         label='Data Final',
-        initial=(datetime.date.today()-datetime.timedelta(20)),
+        initial= datetime.date(2020,1,1),
         help_text='Formato: AAAA-MM-DD')
     ticker = forms.MultipleChoiceField(label='Empresa:',
                                        widget=forms.CheckboxSelectMultiple,
