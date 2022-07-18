@@ -143,6 +143,7 @@ def relatorio_carteira(request):
             numberee = random.sample(range(114444), k=1)[0]
             dados_dea.to_excel('var/tmp/django_cache/'+f'report_dea_{numberee}.xlsx')
             request.session['listing_list'] = [f'report_dea_{numberee}.xlsx']
+            resultado_simulador = []
             form = StockInputCart()
             response = render(request, 'relatoriocarteira.html', {'form': form,
                                                       'chart': chart,
