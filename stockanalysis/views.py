@@ -141,7 +141,7 @@ def relatorio_carteira(request):
             resultado_simulador = mark[25]
             mark = []
             import random
-            numberee = random.sample(range(114444), k=1)[0]
+            numberee = random.sample(range(13), k=1)[0]
             dados_dea.to_excel('var/tmp/django_cache/'+f'report_dea_{numberee}.xlsx')
             request.session['listing_list'] = [f'report_dea_{numberee}.xlsx']
             resultado_simulador = []
