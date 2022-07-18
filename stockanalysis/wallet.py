@@ -608,11 +608,24 @@ def mark_carteira(ticker,
         title='Simulação de investimento unitário em cada carteira - Comparação'
     )
     df_final_merge_.to_excel('resultado_simu.xlsx')
+    print(df_final_merge_.tail(1).reset_index(drop=True))
+    fig_tab_simu = go.Figure(data=[go.Table(
+    header=dict(values=list(df_final_merge_.tail(1).reset_index(drop=True).columns),
+                fill_color='paleturquoise',
+                align='left'),
+    cells=dict(values=[df_final_merge_.tail(1).reset_index(drop=True)[f'{i}'].round(3) for i in list(df_final_merge_.tail(1).reset_index(drop=True).columns)],
+               fill_color='lavender',
+               align='left'))
+    ])
+    fig.update_layout(
+    autosize=True,
+    paper_bgcolor='rgb(255, 255, 255)',
+    )
     graph6 = fig_simulador.to_html()
     return [graph, fffff, graph1, graph2, graph3, graph4, beta, alfa,
             corrl_p, corrl_s, corrl_k, dfkk, nomess, graph5, beta1, alfa1,
             sharpe_unif, mark_sharpe,graph6, data_inicio, data_final, data_simulacao, 
-            [], [],dados_dea_x]
+            [], [],dados_dea_x, fig_tab_simu.to_html(),[] ]
 
 
 def get_graph5():

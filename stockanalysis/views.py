@@ -137,7 +137,7 @@ def relatorio_carteira(request):
             empresas_ret = mark[22]
             empresas_ret_ = mark[23]
             dados_dea = mark[24]
- 
+            resultado_simulador = mark[25]
                      
             form = StockInputCart()
             response = render(request, 'relatoriocarteira.html', {'form': form,
@@ -169,7 +169,8 @@ def relatorio_carteira(request):
                                                       'empresas_ret_':empresas_ret_,
                                                       'simulador': simulador,
                                                       'empresas_ret': empresas_ret,                                                      
-                                                      'sharpe_m': sharp_m})
+                                                      'sharpe_m': sharp_m,
+                                                      'resultado_simulador':resultado_simulador})
             
             return response
         else:
@@ -203,6 +204,7 @@ def relatorio_carteira(request):
             beta1 = []
             chart11 = []
             perc_min_02 = []
+            resultado_simulador = []
             perc_min_01 = []
             form = StockInputCart()
     else:
@@ -220,6 +222,7 @@ def relatorio_carteira(request):
         fim = []
         empresas_ret_ = []
         simulador = []
+        resultado_simulador = []
         empresas_ret = []
         metodo_dea = []
         chart4 = []
@@ -268,7 +271,8 @@ def relatorio_carteira(request):
                                                       'empresas_ret_':empresas_ret_,
                                                       'simulador': simulador,
                                                       'empresas_ret': empresas_ret,                                                      
-                                                      'sharpe_m': sharp_m})
+                                                      'sharpe_m': sharp_m,
+                                                      'resultado_simulador':resultado_simulador})
     return response
 
 
