@@ -154,9 +154,7 @@ def mark_carteira(ticker,
                   data_final, 
                   risk_free, 
                   metodo_dea,
-                  data_simulacao,
-                  per_01,
-                  per_02):
+                  data_simulacao):
     livre_de_risco = risk_free  # Basicamente a taxa básica de juros
     names_tickers_aux = ticker
     conn = sqlite3.connect('db.sqlite3')
@@ -187,22 +185,22 @@ def mark_carteira(ticker,
                 right_index=True
             )
     df.columns = ticker
-    dados = df
-
-    if (len(dados.dropna())/len(dados)) > (per_01/100):
-        coluns = dados.isnull().sum()>=((per_01/100))*len(dados)
-        empresas_retiradas = list(coluns[coluns].index.values)
-        empresas_retiradas_str = " , ".join(empresas_retiradas)
-        dados = dados.drop(columns=(coluns[coluns].index.values))
-        ticker = list(dados.columns)
-    if (len(dados.pct_change()[dados.pct_change()==0])/len(dados.pct_change())) > (per_02/100):
-        coluns = dados.pct_change()[dados.pct_change()==0].sum()>=((per_02/100))*len(dados.pct_change())
-        empresas_retiradas_ = list(coluns[coluns].index.values)
-        empresas_retiradas_str_ = " , ".join(empresas_retiradas_)
-        dados = dados.drop(columns=(coluns[coluns].index.values))
-        ticker = list(dados.columns)
-    print(empresas_retiradas_str_)
-    ticker = names_tickers_aux
+    dados = df.copy()
+    print(df)
+    #f (len(dados.dropna())/len(dados)) > (per_01/100):
+    #    coluns = dados.isnull().sum()>=((per_01/100))*len(dados)
+    #    empresas_retiradas = list(coluns[coluns].index.values)
+    #    empresas_retiradas_str = " , ".join(empresas_retiradas)
+    #    dados = dados.drop(columns=(coluns[coluns].index.values))
+    #    ticker = list(dados.columns)
+    #if (len(dados.pct_change()[dados.pct_change()==0])/len(dados.pct_change())) > (per_02/100):
+    #    coluns = dados.pct_change()[dados.pct_change()==0].sum()>=((per_02/100))*len(dados.pct_change())
+    #    empresas_retiradas_ = list(coluns[coluns].index.values)
+    #    empresas_retiradas_str_ = " , ".join(empresas_retiradas_)
+    #    dados = dados.drop(columns=(coluns[coluns].index.values))
+    #   ticker = list(dados.columns)
+    #print(empresas_retiradas_str_)
+    #ticker = names_tickers_aux
     df_ibov_data = pd.DataFrame()
     data_final = dados.index.max()
     data_inicio = dados.index.min()
@@ -218,8 +216,8 @@ def mark_carteira(ticker,
     df_ibov_data.columns = ['date_ref','^BVSP']
     df_ibov_data = df_ibov_data.drop(columns='date_ref')
     df_ibov_data = df_ibov_data.dropna()
-    df_ibov_data_ = (df_ibov_data/df_ibov_data.iloc[0])
-    df_aux_ibov = df_ibov_data.pct_change()
+    df_ibov_data_ = (df_ibov_data.astype(float)/df_ibov_data.iloc[0])
+    df_aux_ibov = df_ibov_data.astype(float).pct_change()
     df_aux_ibov = df_aux_ibov.dropna()
     dados___ = dados.copy()
     dados___.sort_index(inplace=True)
@@ -276,18 +274,20 @@ def mark_carteira(ticker,
     periodo_03 = retornos_prod.iloc[int(
         (tamanho/3)):int(tamanho)].product(axis=0)
     volatilidade = retornos.dropna().std()
+    print(retornos)
     retornos__ = retornos.merge(df_aux_ibov, how='inner', left_index=True,
                                 right_index=True)
+    print(retornos__)
     retornos__.columns = ticker + ['BVSP']
-    retornos__ = retornos__.dropna()
+    retornos__ = retornos__.astype(float).dropna()
     betas = []
     for i in ticker:
         try:
             values_x = retornos__[f'{i}'].dropna().values
             values_y = retornos__['BVSP'].dropna().values
             LR = stats.linregress(
-                retornos__[f'{i}'].dropna().values,
-                retornos__['BVSP'].dropna().values)
+                values_x,
+                values_y)
         except ValueError:
             betas.append(1.000)
         else:
@@ -307,6 +307,7 @@ def mark_carteira(ticker,
     primResults = primDEA.solve()
     dfk['Eficiência'] = primResults['Efficiency'].round(3)
     print(dfk)
+    dados_dea_x = dfk.copy()
     fig = go.Figure(data=[go.Table(
     header=dict(values=list(dfk.columns),
                 fill_color='paleturquoise',
@@ -320,6 +321,7 @@ def mark_carteira(ticker,
     paper_bgcolor='rgb(255, 255, 255)'
     )
     dfkk = fig.to_html()
+    dfk.to_excel('dea.xlsx')
     names_tickers_aux = (list(dfk[dfk['Eficiência'] >= 0.999999]['Ticker'].values))
     ticker = names_tickers_aux
     dados = dados[ticker]
@@ -449,6 +451,7 @@ def mark_carteira(ticker,
     df_final_merge = pd.merge(df_ibov_data_,retorno_carteira,left_index=True,right_index=True, how='inner')
     df_final_merge_ = df_final_merge.merge(retorno_carteira_unif, left_index=True,right_index=True, how='inner')
     df_final_merge_.columns = ['Ibovespa','DEA(M)','DEA(1/N)']
+    df_final_merge_ = df_final_merge_.dropna().astype(float)
     #plt.switch_backend('AGG')
     #plt.figure(figsize=(18, 9))
     #df_ibov_data_.plot(label='BVSP', legend='better')
@@ -459,8 +462,8 @@ def mark_carteira(ticker,
     #plt.tight_layout(pad=1.20, h_pad=1.35, w_pad=1.35)
     fig_simulador = px.line(
         df_final_merge_,
-        x=df_final_merge_.index,
-        y= ['Ibovespa','DEA(M)','DEA(1/N)'],
+        #x= df_final_merge_.index,
+        #y= ['Ibovespa','DEA(M)','DEA(1/N)'],
         title='Comportamento das carteiras durante o período de análise.'
     )
     graph3 = fig_simulador.to_html()# get_graph8()
@@ -471,10 +474,10 @@ def mark_carteira(ticker,
     dados_corr = dados_corr.dropna()
 
     LR = stats.linregress(
-        dados_corr['Carteira'].values, dados_corr['Ibov'].values)
+        dados_corr['Carteira'].astype(float).values, dados_corr['Ibov'].astype(float).values)
     plt.switch_backend('AGG')
     plt.figure(figsize=(18, 9))
-    sns.regplot(dados_corr['Carteira'].values, dados_corr['Ibov'].values)
+    sns.regplot(dados_corr['Carteira'].astype(float).values, dados_corr['Ibov'].astype(float).values)
     plt.xlabel("Retorno do BVSP")
     plt.ylabel("Retorno da Carteira")
     plt.title("Retorno da DEA(M) vs Retorno do BVSP - Regressão Linear")
@@ -486,10 +489,10 @@ def mark_carteira(ticker,
     dados_corr = dados_corr.dropna()
 
     LR = stats.linregress(
-        dados_corr['Carteira'].values, dados_corr['Ibov'].values)
+        dados_corr['Carteira'].astype(float).values, dados_corr['Ibov'].astype(float).values)
     plt.switch_backend('AGG')
     plt.figure(figsize=(18, 9))
-    sns.regplot(dados_corr['Carteira'].values, dados_corr['Ibov'].values)
+    sns.regplot(dados_corr['Carteira'].astype(float).values, dados_corr['Ibov'].astype(float).values)
     plt.xlabel("Retorno do BVSP")
     plt.ylabel("Retorno da Carteira - DEA(1/N)")
     plt.title("Retorno da DEA(1/N) vs Retorno do BVSP - Regressão Linear")
@@ -608,7 +611,7 @@ def mark_carteira(ticker,
     return [graph, fffff, graph1, graph2, graph3, graph4, beta, alfa,
             corrl_p, corrl_s, corrl_k, dfkk, nomess, graph5, beta1, alfa1,
             sharpe_unif, mark_sharpe,graph6, data_inicio, data_final, data_simulacao, 
-            empresas_retiradas_str, empresas_retiradas_str]
+            [], [],dados_dea_x]
 
 
 def get_graph5():

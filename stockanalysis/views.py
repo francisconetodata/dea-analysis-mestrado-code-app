@@ -1,3 +1,4 @@
+from concurrent.futures import thread
 import json
 import os
 import time
@@ -7,8 +8,11 @@ from threading import Thread
 import django_excel as excel
 import openpyxl
 
+
 import pandas as pd
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, HttpRequest
+from django.template.response import TemplateResponse
+
 from django.shortcuts import render
 from pandas_datareader.data import DataReader
 from .form import DownloadP, StockInput, StockInputCart
@@ -72,6 +76,7 @@ def download_view(request):
             time.sleep(2)
 
 
+
 def relatorio_carteira(request):
     form = StockInputCart(request.POST or None)
     if str(request.method) == 'POST':
@@ -82,8 +87,7 @@ def relatorio_carteira(request):
             ticker = form.cleaned_data['ticker']
             risk_free = form.cleaned_data['risk_free']
             metodo_dea = form.cleaned_data['dea_method']
-            perc_min_01 = form.cleaned_data['percent_acpt']
-            perc_min_02 = form.cleaned_data['percent_acpt_z']
+            
             selecionar_todas = False #form.cleaned_data['selecionar_todas']
             if selecionar_todas==True:
                 ticker_query =list( Stock.objects.values_list('symbol_stock').order_by('symbol_stock'))
@@ -106,9 +110,7 @@ def relatorio_carteira(request):
                                  end, 
                                  risk_free, 
                                  metodo_dea,
-                                 data_simulacao,
-                                 perc_min_01,
-                                 perc_min_02)
+                                 data_simulacao)
             chart5 = mark[0]
             alguemfezanalise()
             portfolio_max = mark[1]
@@ -134,7 +136,42 @@ def relatorio_carteira(request):
             simulador = str(mark[21])[0:10]
             empresas_ret = mark[22]
             empresas_ret_ = mark[23]
+            dados_dea = mark[24]
+ 
+                     
             form = StockInputCart()
+            response = render(request, 'relatoriocarteira.html', {'form': form,
+                                                      'chart': chart,
+                                                      'chart2': chart2,
+                                                      'chart3': chart3,
+                                                      'chart4': chart4,
+                                                      'chart5': chart5,
+                                                      'chart6': chart6,
+                                                      'chart7': chart7,
+                                                      'chart8': chart8,
+                                                      'chart9': chart9,
+                                                      'chart10': chart10,
+                                                      'alfa': alfa,
+                                                      'beta': beta,
+                                                      'portmark': portfolio_max,
+                                                      'pearson': pearson,
+                                                      'kendall': kendall,
+                                                      'speaman': spearman,
+                                                      'dea': dea,
+                                                      'empresas': empresas,
+                                                      'chart11': chart11,
+                                                      'beta1': beta1,
+                                                      'alfa1': alfa1,
+                                                      'dea_method': metodo_dea,
+                                                      'sharpe_unif': sharp_unif,
+                                                      'inicio': inicio,
+                                                      'fim': fim,
+                                                      'empresas_ret_':empresas_ret_,
+                                                      'simulador': simulador,
+                                                      'empresas_ret': empresas_ret,                                                      
+                                                      'sharpe_m': sharp_m})
+            
+            return response
         else:
             empresas = []
             sharp_unif = []
@@ -202,7 +239,7 @@ def relatorio_carteira(request):
         chart11 = []
         form = StockInputCart()
     form = StockInputCart()
-    return render(request, 'relatoriocarteira.html', {'form': form,
+    response = render(request, 'relatoriocarteira.html', {'form': form,
                                                       'chart': chart,
                                                       'chart2': chart2,
                                                       'chart3': chart3,
@@ -229,11 +266,11 @@ def relatorio_carteira(request):
                                                       'inicio': inicio,
                                                       'fim': fim,
                                                       'empresas_ret_':empresas_ret_,
-                                                      'per01':perc_min_01,
-                                                      'per02':perc_min_02,
                                                       'simulador': simulador,
                                                       'empresas_ret': empresas_ret,                                                      
                                                       'sharpe_m': sharp_m})
+    return response
+
 
 
 def pacotes(request):
@@ -284,13 +321,23 @@ def info_base(request):
     import sqlite3 # Pacote do banco de dados
     conn = sqlite3.connect('db.sqlite3')
     dados = pd.read_sql("""
-                        SELECT * FROM MaxMinDateStock
+                        SELECT  ss.name_stock ,
+                        ss.symbol_stock ,
+                        MAX((sp.date_ref )) as MaxDate,
+                        MIN((sp.date_ref )) as MinDate,
+                        COUNT(DISTINCT(sp.id)) AS QtdDadosDisponivel 
+                        FROM stockanalysis_pricedatastocks as sp
+                        INNER JOIN stockanalysis_stock ss on ss.id = sp.stock_id 
+                        WHERE ss.symbol_stock NOT LIKE '^BVSP'
+                        GROUP BY ss.name_stock , ss.symbol_stock
+                        ORDER BY COUNT(DISTINCT(sp.id)) DESC,ss.name_stock 
                         """,conn)
     dados.columns = [
         'Nome Empresa',
         'Símbolo',
         'Data máxima disponível',
-        'Data mínima disponível'
+        'Data mínima disponível',
+        'Qtd Dados Disponíveis'
     ]
     response = HttpResponse(
                 content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')

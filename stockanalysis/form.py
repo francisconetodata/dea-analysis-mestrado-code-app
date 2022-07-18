@@ -20,12 +20,7 @@ class StockInput(forms.Form):
 
 class StockInputCart(forms.Form):
     CHOICES = Stock.objects.values_list('symbol_stock', 'name_stock').order_by('symbol_stock')
-    percent_acpt = forms.IntegerField(
-        label='Percentual aceitável em cada coluna de dados faltantes:', initial=10,
-        help_text='Inserir um número de 0 a 20',max_value=20, min_value=0)
-    percent_acpt_z = forms.IntegerField(
-        label='Percentual aceitável de retornos zero em cada coluna', initial=10,
-        help_text='Inserir um número de 0 a 20',max_value=20, min_value=0)
+
     data_inicial = forms.DateField(
         label='Data Incial',
         initial= datetime.date(2014,1,1),
