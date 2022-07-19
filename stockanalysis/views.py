@@ -327,6 +327,12 @@ def pacotes(request):
     pacotes = fig.to_html()
     return render(request, 'sobre.html', {'pack': pacotes})
 
+def pacotes_download(request):
+   file_data = open('requirements.txt','r')
+   response = HttpResponse(file_data, content_type='application/text charset=utf-8')
+   response['Content-Disposition'] = 'attachment; filename="requirements.txt"'
+   return response
+
 def app_atualizar(request):
     def task_2():
         atualizar_db()
@@ -371,8 +377,8 @@ def info_base(request):
     dados = pd.read_sql("""
                         SELECT  ss.name_stock ,
                         ss.symbol_stock ,
-                        MAX((sp.date_ref )) as MaxDate,
-                        MIN((sp.date_ref )) as MinDate,
+                        MAX(cast(sp.date_ref as date )) as MaxDate,
+                        MIN(cast(sp.date_ref  as date)) as MinDate,
                         COUNT(DISTINCT(sp.id)) AS QtdDadosDisponivel 
                         FROM stockanalysis_pricedatastocks as sp
                         INNER JOIN stockanalysis_stock ss on ss.id = sp.stock_id 

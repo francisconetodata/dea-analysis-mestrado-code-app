@@ -16,7 +16,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import include, path
 from django.views.generic.base import TemplateView
-from stockanalysis.views import download_view_p, pacotes, exemplo_dea, download_relatorio_dea, relatorio_carteira, app_atualizar, info_base, upload_file
+from stockanalysis.views import download_view_p, pacotes, pacotes_download, exemplo_dea, download_relatorio_dea, relatorio_carteira, app_atualizar, info_base, upload_file
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -31,6 +31,8 @@ urlpatterns = [
     path('uploadfile',  upload_file, name='uploadfile'),
     path('exemplodea',  exemplo_dea, name='exemplodea'),
     path('downloadrelatoriodea',  download_relatorio_dea, name='downloadrelatoriodea'),
+    path('downloadpacotes',  pacotes_download, name='downloadpacotes'),
+
     #    path('download', TemplateView.as_view(
     #        template_name='download.html'), name='download'),
 

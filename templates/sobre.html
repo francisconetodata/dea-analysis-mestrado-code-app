@@ -14,11 +14,18 @@
                 <p>Elaborado pelo aluno: Francisco de Assis Pereira Neto</p>
                 <p>Voltado para defesa da dissertação de mestrado. O Framework usado é o Django do Python.</p>
                 <br>
+                <br>
+                <a class="btn btn-primary" href="{% url 'downloadpacotes' %}">Download do requirements.txt</a>
+                <br>
+                <br>
                 <p>Foram usados alguns pacotes serão descritos a seguir:</p>
                 {{pack|safe}}
             </div>
             <a class="btn btn-primary" href="{% url 'app' %}">Voltar</a>
             <a class="btn btn-primary" href="{% url 'logout' %}">Logout</a>
+            <br>
+            <br>
+            <br>
         {% endif %}
     </div>
 {% endblock %}
