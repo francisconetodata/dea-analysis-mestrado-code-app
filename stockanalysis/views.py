@@ -2,10 +2,13 @@ from concurrent.futures import thread
 import json
 import os
 import time
-import io
 from threading import Thread
 #from somewhere import hand
 import django_excel as excel
+import plotly.express as px
+from io import BytesIO
+import plotly.graph_objects as go
+
 import openpyxl
 from django.contrib import messages
 
@@ -21,7 +24,7 @@ from django import forms
 from .bot import alguemfezanalise , alguemfezlogin, alguemfezanalisedea, alguemfezdownload
 
 from .utils import create_output_html, delete_html_output, get_plot
-from .wallet import mark_carteira
+from .wallet import mark_carteira, calc_table_height
 from .models import Stock, PriceDataStocks
 from .atualizar_db import atualizar_db
 from .pydea.dea import DEAProblem
@@ -306,9 +309,22 @@ def download_relatorio_dea(request):
         return response
 
 def pacotes(request):
-    pacotes = pd.read_excel('requirements.xlsx')
-    pacotes.columns = ['Pacotes:']
-    pacotes = pacotes.to_html()
+    pacotes = pd.read_csv('requirements.txt',encoding='utf-16')
+    pacotes.columns = ['Pacotes Utilizados']
+    fig = go.Figure(data=[go.Table(
+    header=dict(values=list(pacotes.columns),
+                fill_color='paleturquoise',
+                align='center'),
+    cells=dict(values=[pacotes[f'{i}'] for i in list(pacotes.columns)],
+               fill_color='lavender',
+               align='center'))
+    ])
+    fig.update_layout(
+    autosize=True,
+    height=calc_table_height(pacotes),
+    paper_bgcolor='rgb(255, 255, 255)',
+    )
+    pacotes = fig.to_html()
     return render(request, 'sobre.html', {'pack': pacotes})
 
 def app_atualizar(request):
