@@ -55,13 +55,9 @@
        
                     <h1>Resultados</h1>
                     <br>
-              
-                    <br>
                     <p>Data inicial: {{inicio|safe}}</p>
                     <p>Data fim: {{fim|safe}}</p>
                     <p>Data simulação (final): {{simulador|safe}}</p>
-                    <br>
-                    <br>
                     <br>
                     <h5>Dados de entradas e saídas do modelo DEA - Método: {{dea_method|safe}}.</h5>
                     <br>
@@ -69,13 +65,9 @@
                     <br>
                     <p>Considera-se saídas (outputs) os retornos e entradas a volatilidade e o beta. </p>
                     <br>
-                    <br>
                     <a class="btn btn-primary" href="{% url 'downloadrelatoriodea' %}">Download Dados - DEA</a>
                     <br>
-                    <br>
                     <h5>Empresas pré selecionadas pelo método DEA. (eficiência = 1)</h5>
-                    <br>
-                    <br>
                     <br>
                     {{empresas|safe}}
                     <br>
@@ -86,32 +78,23 @@
                     <img src="data:image/png;Base64,{{chart5|safe}}" alt="" style="vertical-align:middle;border:1px solid gray" >
                     <p></p>
                     <br>
-                    <br>
                     <h5> Preços normalizados</h5>
                     <br>
                     <p></p>
                     {{chart6|safe}}
-                    <p></p>
-                    <br>
-                    <br>
                     <br>     
                     <h5> Carteira que maximixa o índice de Sharpe - DEA(M)- pesos</h5>
-                    <br>
-                    <p></p>
-                    <p></p>
-                    
+                    <br>                    
                     {{chart7|safe}}
                     <p></p>
                     <h5> Carteira que maximixa o índice de Sharpe - DEA(M) - pesos - Tabela</h5>
-                    <p></p>
                     {{portmark|safe}}
                     <br>    
                     <h5> Comparação das carteiras DEA(M), DEA(1/N) e índice Ibovespa.</h5>
                     <br>
-                    <p></p>
                     {{chart8|safe}}
 
-                    <br>    <br><br><br>
+                    <br><br><br><br><br><br><br>
                     <h5>Índice de Sharpe das carteiras</h5>
                     <br>
                     <p>Índice de Sharpe DEA(1/N): {{sharpe_unif|safe}}</p>

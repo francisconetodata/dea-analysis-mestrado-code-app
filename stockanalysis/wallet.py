@@ -201,7 +201,7 @@ def mark_carteira(ticker,
     #   ticker = list(dados.columns)
     ##print(empresas_retiradas_str_)
     #ticker = names_tickers_aux
-    df_ibov_data = pd.DataFrame()
+    #df_ibov_data = pd.DataFrame()
     data_final = dados.index.max()
     data_inicio = dados.index.min()
     df_ibov_data = pd.read_sql(f"""
@@ -215,8 +215,8 @@ def mark_carteira(ticker,
     df_ibov_data.index = pd.to_datetime(df_ibov_data['date_ref'])
     df_ibov_data.columns = ['date_ref','^BVSP']
     df_ibov_data = df_ibov_data.drop(columns='date_ref')
-    df_ibov_data = df_ibov_data.dropna()
-    df_ibov_data_ = (df_ibov_data.astype(float)/df_ibov_data.iloc[0])
+    df_ibov_data = df_ibov_data.astype(float).dropna()
+    df_ibov_data_ = (df_ibov_data/df_ibov_data.loc[df_ibov_data.index == df_ibov_data.index.min()]).copy()
     df_aux_ibov = df_ibov_data.astype(float).pct_change()
     df_aux_ibov = df_aux_ibov.dropna()
     dados___ = dados.copy()
@@ -224,47 +224,81 @@ def mark_carteira(ticker,
     retornos = dados___.dropna().astype(float).pct_change()
     retornos_medios = retornos.mean()
     cov_matrix = retornos.cov()
-    corrl_p = retornos.dropna().corr(method='pearson').round(3).reset_index()
-    fig = go.Figure(data=[go.Table(
-    header=dict(values=list(corrl_p.columns),
-                fill_color='paleturquoise',
-                align='left'),
-    cells=dict(values=[corrl_p[f'{i}'] for i in list(corrl_p.columns)],
-               fill_color='lavender',
-               align='left'))
-    ])
-    fig.update_layout(
-    autosize=True,
-    paper_bgcolor='rgb(255, 255, 255)',
+    corrl_p = retornos.dropna().corr(method='pearson').round(3)#.reset_index()
+    #fig = go.Figure(data=[go.Table(
+    #header=dict(values=list(corrl_p.columns),
+    #            fill_color='paleturquoise',
+    #            align='left'),
+    #cells=dict(values=[corrl_p[f'{i}'] for i in list(corrl_p.columns)],
+    #           fill_color='lavender',
+    #           align='left'))
+    #])
+    #fig.update_layout(
+    #autosize=True,
+    #paper_bgcolor='rgb(255, 255, 255)',
+    #height=calc_table_height(corrl_p)
+    #)
+    fig = go.Figure()
+    fig.add_trace(
+    go.Heatmap(
+        x = corrl_p.columns,
+        y = corrl_p.index,
+        z = np.array(corrl_p),
+        colorscale='Viridis'
+        #title='Correlação de Pearson entre os retornos'
+    )
     )
     corrl_p = fig.to_html()
-    corrl_s = retornos.dropna().corr(method='spearman').round(3).reset_index()
-    fig = go.Figure(data=[go.Table(
-    header=dict(values=list(corrl_s.columns),
-                fill_color='paleturquoise',
-                align='left'),
-    cells=dict(values=[corrl_s[f'{i}'] for i in list(corrl_s.columns)],
-               fill_color='lavender',
-               align='left'))
-    ])
-    fig.update_layout(
-    autosize=True,
-    paper_bgcolor='rgb(255, 255, 255)',
+    corrl_s = retornos.dropna().corr(method='spearman').round(3)#.reset_index()
+    #fig = go.Figure(data=[go.Table(
+    #header=dict(values=list(corrl_s.columns),
+    #            fill_color='paleturquoise',
+    #            align='left'),
+    #cells=dict(values=[corrl_s[f'{i}'] for i in list(corrl_s.columns)],
+    #           fill_color='lavender',
+    #           align='left'))
+    #])
+    #fig.update_layout(
+    #autosize=True,
+    #paper_bgcolor='rgb(255, 255, 255)',
+    #height=calc_table_height(corrl_s)
+    #)
+    fig = go.Figure()
+    fig.add_trace(
+    go.Heatmap(
+        x = corrl_s.columns,
+        y = corrl_s.index,
+        z = np.array(corrl_s),
+        colorscale='Viridis'
+        #title='Correlação de Spearman entre os retornos'
     )
+    )    
     corrl_s = fig.to_html()
-    corrl_k = retornos.dropna().corr(method='kendall').round(3).reset_index()
-    fig = go.Figure(data=[go.Table(
-    header=dict(values=list(corrl_k.columns),
-                fill_color='paleturquoise',
-                align='left'),
-    cells=dict(values=[corrl_k[f'{i}'] for i in list(corrl_k.columns)],
-               fill_color='lavender',
-               align='left'))
-    ])
-    fig.update_layout(
-    autosize=True,
-    paper_bgcolor='rgb(255, 255, 255)',
+    corrl_k = retornos.dropna().corr(method='kendall').round(3)#.reset_index()
+    #fig = go.Figure(data=[go.Table(
+    #header=dict(values=list(corrl_k.columns),
+    #            fill_color='paleturquoise',
+    #            align='left'),
+    #cells=dict(values=[corrl_k[f'{i}'] for i in list(corrl_k.columns)],
+    #           fill_color='lavender',
+    #           align='left'))
+    #])
+    #fig.update_layout(
+    #autosize=True,
+    #paper_bgcolor='rgb(255, 255, 255)',
+    #height=calc_table_height(corrl_k)
+
+    #)
+    fig = go.Figure()
+    fig.add_trace(
+    go.Heatmap(
+        x = corrl_k.columns,
+        y = corrl_k.index,
+        z = np.array(corrl_k),
+        colorscale='Viridis'
+       # title='Correlação de Kendall entre os retornos'
     )
+    )   
     corrl_k = fig.to_html()
     retornos_prod = retornos.dropna() + 1
     tamanho = len(retornos_prod)
@@ -307,6 +341,7 @@ def mark_carteira(ticker,
     primResults = primDEA.solve()
     dfk['Eficiência'] = primResults['Efficiency'].round(3)
     #print(dfk)
+    dfk = dfk.sort_values(by = 'Eficiência',ascending=False)
     dados_dea_x = dfk.copy()
     fig = go.Figure(data=[go.Table(
     header=dict(values=list(dfk.columns),
@@ -317,18 +352,18 @@ def mark_carteira(ticker,
                align='left'))
     ])
     fig.update_layout(
-    
+    height=calc_table_height(dfk),
     paper_bgcolor='rgb(255, 255, 255)'
     )
     dfkk = fig.to_html()
-    dfk.to_excel('dea.xlsx')
+    #dfk.to_excel('dea.xlsx')
     names_tickers_aux = (list(dfk[dfk['Eficiência'] >= 0.999999]['Ticker'].values))
     ticker = names_tickers_aux
     dados = dados[ticker]
     num_portfolios = 4500
     resultados = np.zeros((len(names_tickers_aux)+3, num_portfolios))
     dados.sort_index(inplace=True)
-    retornos = dados.pct_change()
+    retornos = dados.astype(float).dropna().pct_change()
     retornos_medios = retornos.mean()
     preços = pd.DataFrame()
 
@@ -347,7 +382,7 @@ def mark_carteira(ticker,
         dados_t = dados_t.drop(columns=['data'])
         preços[t] = dados_t
     #print(preços)
-    preços = preços.dropna()
+    preços = preços.astype(float).dropna()
     preços_normalizados = (preços/preços.iloc[0])
     cov_matrix = retornos.cov()
     for i in range(num_portfolios):
@@ -400,7 +435,10 @@ def mark_carteira(ticker,
     for i in range(len(names_tickers_aux)):
         retorno_carteira += (max_sharpe_port[names_tickers_aux[i]]
                              * preços_normalizados[names_tickers_aux[i]])
-
+    retorno_carteira = pd.DataFrame(retorno_carteira)
+    retorno_carteira.columns = ['DEA(M)']
+    retorno_carteira_unif = pd.DataFrame(retorno_carteira_unif)
+    retorno_carteira_unif.columns = ['DEA(1/N)']
     plt.switch_backend('AGG')
     plt.figure(figsize=(18, 9))
     plt.scatter(resultados_frame.desvio_padrao, resultados_frame.retorno,
@@ -430,7 +468,12 @@ def mark_carteira(ticker,
     fig_nr = px.line(
         preços_normalizados,
         title='Preços Normalizados das ações'
-    )
+    ).update_layout(
+
+    xaxis_title="Data",
+    yaxis_title="Preços dos ativos normalizados",
+
+)
     graph1 = fig_nr.to_html()#get_graph6()
     #plt.switch_backend('AGG')
     #plt.figure(figsize=(18, 9))
@@ -446,12 +489,26 @@ def mark_carteira(ticker,
         y = 'Dados',
         title= 'Pesos do portfólio que maximiza o índice sharpe.',
         text_auto= True
-    )
+    ).update_layout(
+
+    xaxis_title="Ativo",
+    yaxis_title="Peso na carteira DEA(M)",
+
+)
     graph2 = barras_pl.to_html() #get_graph7()
-    df_final_merge = pd.merge(df_ibov_data_,retorno_carteira,left_index=True,right_index=True, how='inner')
-    df_final_merge_ = df_final_merge.merge(retorno_carteira_unif, left_index=True,right_index=True, how='inner')
+    df_ibov_data_.index = pd.to_datetime(df_ibov_data_.index)
+    retorno_carteira.index = pd.to_datetime(retorno_carteira.index)
+    retorno_carteira_unif.index = pd.to_datetime(retorno_carteira_unif.index)
+    retorno_carteira = retorno_carteira.dropna()
+    retorno_carteira_unif = retorno_carteira_unif.dropna()
+    df_ibov_data_ = df_ibov_data_.dropna()
+    df_final_merge = pd.merge((1+df_ibov_data.pct_change()).cumprod(),
+                              retorno_carteira, how='inner',
+                              left_index=True,right_index=True)
+    df_final_merge_ = pd.merge(df_final_merge,retorno_carteira_unif, how='inner',
+                               left_index=True,right_index=True)
     df_final_merge_.columns = ['Ibovespa','DEA(M)','DEA(1/N)']
-    df_final_merge_ = df_final_merge_.dropna().astype(float)
+    df_final_merge_ = df_final_merge_.astype(float).dropna()
     #plt.switch_backend('AGG')
     #plt.figure(figsize=(18, 9))
     #df_ibov_data_.plot(label='BVSP', legend='better')
@@ -465,34 +522,39 @@ def mark_carteira(ticker,
         #x= df_final_merge_.index,
         #y= ['Ibovespa','DEA(M)','DEA(1/N)'],
         title='Comportamento das carteiras durante o período de análise.'
-    )
+    ).update_layout(
+
+    xaxis_title="Data",
+    yaxis_title="Simulação de carteira unitária.",
+
+)
     graph3 = fig_simulador.to_html()# get_graph8()
 
-    dados_corr = pd.merge(retorno_carteira, df_ibov_data_, how='inner',
-                          left_index=True, right_index=True)
-    dados_corr.columns = ['Carteira', 'Ibov']
-    dados_corr = dados_corr.dropna()
+    #dados_corr = pd.merge(retorno_carteira, df_ibov_data_, how='inner',
+    #                      left_index=True, right_index=True)
+    #dados_corr.columns = ['Carteira', 'Ibov']
+    dados_corr = df_final_merge_.copy()
 
     LR = stats.linregress(
-        dados_corr['Carteira'].astype(float).values, dados_corr['Ibov'].astype(float).values)
+        dados_corr['DEA(M)'].astype(float).values, dados_corr['Ibovespa'].astype(float).values)
     plt.switch_backend('AGG')
     plt.figure(figsize=(18, 9))
-    sns.regplot(dados_corr['Carteira'].astype(float).values, dados_corr['Ibov'].astype(float).values)
+    sns.regplot(dados_corr['DEA(M)'].astype(float).values, dados_corr['Ibovespa'].astype(float).values)
     plt.xlabel("Retorno do BVSP")
     plt.ylabel("Retorno da Carteira")
     plt.title("Retorno da DEA(M) vs Retorno do BVSP - Regressão Linear")
     (beta, alfa) = LR[0:2]
     graph4 = get_graph9()
-    dados_corr = pd.merge(retorno_carteira_unif, df_ibov_data_, how='inner',
-                          left_index=True, right_index=True)
-    dados_corr.columns = ['Carteira', 'Ibov']
-    dados_corr = dados_corr.dropna()
+    #dados_corr = pd.merge(retorno_carteira_unif, df_ibov_data_, how='inner',
+    #                      left_index=True, right_index=True)
+    #dados_corr.columns = ['Carteira', 'Ibov']
+    #dados_corr = dados_corr.dropna()
 
     LR = stats.linregress(
-        dados_corr['Carteira'].astype(float).values, dados_corr['Ibov'].astype(float).values)
+        dados_corr['DEA(1/N)'].astype(float).values, dados_corr['Ibovespa'].astype(float).values)
     plt.switch_backend('AGG')
     plt.figure(figsize=(18, 9))
-    sns.regplot(dados_corr['Carteira'].astype(float).values, dados_corr['Ibov'].astype(float).values)
+    sns.regplot(dados_corr['DEA(1/N)'].astype(float).values, dados_corr['Ibovespa'].astype(float).values)
     plt.xlabel("Retorno do BVSP")
     plt.ylabel("Retorno da Carteira - DEA(1/N)")
     plt.title("Retorno da DEA(1/N) vs Retorno do BVSP - Regressão Linear")
@@ -515,6 +577,8 @@ def mark_carteira(ticker,
     fig.update_layout(
     autosize=True,
     paper_bgcolor='rgb(255, 255, 255)',
+    height=calc_table_height(nomes),
+
     )
     nomess = fig.to_html()
     fffff_ = fffff
@@ -529,6 +593,7 @@ def mark_carteira(ticker,
     ])
     fig.update_layout(
     autosize=True,
+    height=calc_table_height(nomes),
     paper_bgcolor='rgb(255, 255, 255)',
     )
     fffff = fig.to_html()
@@ -606,7 +671,12 @@ def mark_carteira(ticker,
         x=df_final_merge_.index,
         y= ['Ibovespa','DEA(M)','DEA(1/N)'],
         title='Simulação de investimento unitário em cada carteira - Comparação'
-    )
+    ).update_layout(
+
+    xaxis_title="Data",
+    yaxis_title="Simulação de carteira unitária.",
+
+)
     df_final_merge_.to_excel('resultado_simu.xlsx')
     #print(df_final_merge_.tail(1).reset_index(drop=True))
     fig_tab_simu = go.Figure(data=[go.Table(
@@ -619,6 +689,7 @@ def mark_carteira(ticker,
     ])
     fig.update_layout(
     autosize=True,
+    height=calc_table_height(df_final_merge_),
     paper_bgcolor='rgb(255, 255, 255)',
     )
     graph6 = fig_simulador.to_html()
@@ -701,3 +772,19 @@ def get_graph11():
     graph = graph.decode('utf-8')
     buffer.close()
     return graph
+
+def calc_table_height(df, base=208, height_per_row=20, char_limit=30, height_padding=16.5):
+    '''
+    df: The dataframe with only the columns you want to plot
+    base: The base height of the table (header without any rows)
+    height_per_row: The height that one row requires
+    char_limit: If the length of a value crosses this limit, the row's height needs to be expanded to fit the value
+    height_padding: Extra height in a row when a length of value exceeds char_limit
+    '''
+    total_height = 0 + base
+    for x in range(df.shape[0]):
+        total_height += height_per_row
+    for y in range(df.shape[1]):
+        if len(str(df.iloc[x][y])) > char_limit:
+            total_height += height_padding
+    return total_height
