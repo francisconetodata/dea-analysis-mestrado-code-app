@@ -1,40 +1,34 @@
-from concurrent.futures import thread
-import json
 import os
 import time
-from threading import Thread
-#from somewhere import hand
-import django_excel as excel
-import plotly.express as px
-from io import BytesIO
-import plotly.graph_objects as go
-
-import openpyxl
-from django.contrib import messages
-
 
 import pandas as pd
-from django.http import HttpResponse, HttpResponseRedirect, HttpRequest
-from django.template.response import TemplateResponse
-
+import plotly.graph_objects as go
+from django import forms
+from django.contrib import messages
+from django.http import HttpResponse
 from django.shortcuts import render
 from pandas_datareader.data import DataReader
-from .form import DownloadP, StockInput, StockInputCart
-from django import forms
-from .bot import alguemfezanalise , alguemfezlogin, alguemfezanalisedea, alguemfezdownload
 
-from .utils import create_output_html, delete_html_output, get_plot
-from .wallet import mark_carteira, calc_table_height
-from .models import Stock, PriceDataStocks
 from .atualizar_db import atualizar_db
+from .bot import (alguemfezanalise, alguemfezanalisedea, alguemfezdownload,
+                  alguemfezlogin)
+from .form import DownloadP, StockInput, StockInputCart
+from .models import PriceDataStocks, Stock
 from .pydea.dea import DEAProblem
+from .utils import delete_html_output, get_plot
+from .wallet import calc_table_height, mark_carteira
+
+# from io import BytesIO
+# from threading import Thread
+# from concurrent.futures import thread
+
 
 class UploadFileForm(forms.Form):
     dea_method = forms.ChoiceField(label='Método DEA',
                                    choices=(('VRS', 'VRS'), ('CRS', 'CRS')))
     file = forms.FileField(allow_empty_file=False)
-    
- 
+
+
 def download_view(request):
     form = StockInput(request.POST or None)
     if str(request.method) == 'POST':
@@ -80,7 +74,6 @@ def download_view(request):
             time.sleep(2)
 
 
-
 def relatorio_carteira(request):
     form = StockInputCart(request.POST or None)
     if str(request.method) == 'POST':
@@ -91,14 +84,17 @@ def relatorio_carteira(request):
             ticker = form.cleaned_data['ticker']
             risk_free = form.cleaned_data['risk_free']
             metodo_dea = form.cleaned_data['dea_method']
-            
-            selecionar_todas = False #form.cleaned_data['selecionar_todas']
-            if selecionar_todas==True:
-                ticker_query =list( Stock.objects.values_list('symbol_stock').order_by('symbol_stock'))
+
+            selecionar_todas = False  # form.cleaned_data['selecionar_todas']
+            if selecionar_todas == True:
+                ticker_query = list(Stock.objects.values_list(
+                    'symbol_stock').order_by('symbol_stock'))
                 ticker = []
                 for i in range(len(ticker_query)):
-                    ticker.append(Stock.objects.values_list('symbol_stock').order_by('symbol_stock')[i][0])
-                    print(Stock.objects.values_list('symbol_stock').order_by('symbol_stock')[i][0])
+                    ticker.append(Stock.objects.values_list(
+                        'symbol_stock').order_by('symbol_stock')[i][0])
+                    print(Stock.objects.values_list(
+                        'symbol_stock').order_by('symbol_stock')[i][0])
                 print(ticker)
             else:
                 ticker = form.cleaned_data['ticker']
@@ -109,10 +105,10 @@ def relatorio_carteira(request):
             chart2 = []
             chart3 = []
             chart4 = []
-            mark = mark_carteira(ticker, 
-                                 start, 
-                                 end, 
-                                 risk_free, 
+            mark = mark_carteira(ticker,
+                                 start,
+                                 end,
+                                 risk_free,
                                  metodo_dea,
                                  data_simulacao)
             chart5 = mark[0]
@@ -145,43 +141,45 @@ def relatorio_carteira(request):
             mark = []
             import random
             numberee = random.sample(range(13), k=1)[0]
-            dados_dea.to_excel('var/tmp/django_cache/'+f'report_dea_{numberee}.xlsx')
+            dados_dea.to_excel('var/tmp/django_cache/' +
+                               f'report_dea_{numberee}.xlsx')
             request.session['listing_list'] = [f'report_dea_{numberee}.xlsx']
-            #resultado_simulador = []
             mark = []
             form = StockInputCart()
-            response = render(request, 'relatoriocarteira.html', {'form': form,
-                                                      'chart': chart,
-                                                      'chart2': chart2,
-                                                      'chart3': chart3,
-                                                      'chart4': chart4,
-                                                      'chart5': chart5,
-                                                      'chart6': chart6,
-                                                      'chart7': chart7,
-                                                      'chart8': chart8,
-                                                      'chart9': chart9,
-                                                      'chart10': chart10,
-                                                      'alfa': alfa,
-                                                      'beta': beta,
-                                                      'portmark': portfolio_max,
-                                                      'pearson': pearson,
-                                                      'kendall': kendall,
-                                                      'speaman': spearman,
-                                                      'dea': dea,
-                                                      'empresas': empresas,
-                                                      'chart11': chart11,
-                                                      'beta1': beta1,
-                                                      'alfa1': alfa1,
-                                                      'dea_method': metodo_dea,
-                                                      'sharpe_unif': sharp_unif,
-                                                      'inicio': inicio,
-                                                      'fim': fim,
-                                                      'empresas_ret_':empresas_ret_,
-                                                      'simulador': simulador,
-                                                      'empresas_ret': empresas_ret,                                                      
-                                                      'sharpe_m': sharp_m,
-                                                      'resultado_simulador':resultado_simulador})
-            
+            response = render(request,
+                              'relatoriocarteira.html',
+                              {'form': form,
+                               'chart': chart,
+                               'chart2': chart2,
+                               'chart3': chart3,
+                               'chart4': chart4,
+                               'chart5': chart5,
+                               'chart6': chart6,
+                               'chart7': chart7,
+                               'chart8': chart8,
+                               'chart9': chart9,
+                               'chart10': chart10,
+                               'alfa': alfa,
+                               'beta': beta,
+                               'portmark': portfolio_max,
+                               'pearson': pearson,
+                               'kendall': kendall,
+                               'speaman': spearman,
+                               'dea': dea,
+                               'empresas': empresas,
+                               'chart11': chart11,
+                               'beta1': beta1,
+                               'alfa1': alfa1,
+                               'dea_method': metodo_dea,
+                               'sharpe_unif': sharp_unif,
+                               'inicio': inicio,
+                               'fim': fim,
+                               'empresas_ret_': empresas_ret_,
+                               'simulador': simulador,
+                               'empresas_ret': empresas_ret,
+                               'sharpe_m': sharp_m,
+                               'resultado_simulador': resultado_simulador})
+
             return response
         else:
             empresas = []
@@ -254,92 +252,100 @@ def relatorio_carteira(request):
         chart11 = []
         form = StockInputCart()
     form = StockInputCart()
-    response = render(request, 'relatoriocarteira.html', {'form': form,
-                                                      'chart': chart,
-                                                      'chart2': chart2,
-                                                      'chart3': chart3,
-                                                      'chart4': chart4,
-                                                      'chart5': chart5,
-                                                      'chart6': chart6,
-                                                      'chart7': chart7,
-                                                      'chart8': chart8,
-                                                      'chart9': chart9,
-                                                      'chart10': chart10,
-                                                      'alfa': alfa,
-                                                      'beta': beta,
-                                                      'portmark': portfolio_max,
-                                                      'pearson': pearson,
-                                                      'kendall': kendall,
-                                                      'speaman': spearman,
-                                                      'dea': dea,
-                                                      'empresas': empresas,
-                                                      'chart11': chart11,
-                                                      'beta1': beta1,
-                                                      'alfa1': alfa1,
-                                                      'dea_method': metodo_dea,
-                                                      'sharpe_unif': sharp_unif,
-                                                      'inicio': inicio,
-                                                      'fim': fim,
-                                                      'empresas_ret_':empresas_ret_,
-                                                      'simulador': simulador,
-                                                      'empresas_ret': empresas_ret,                                                      
-                                                      'sharpe_m': sharp_m,
-                                                      'dados_dea':dados_dea,
-                                                      'resultado_simulador':resultado_simulador})
+    response = render(request,
+                      'relatoriocarteira.html',
+                      {'form': form,
+                       'chart': chart,
+                       'chart2': chart2,
+                       'chart3': chart3,
+                       'chart4': chart4,
+                       'chart5': chart5,
+                       'chart6': chart6,
+                       'chart7': chart7,
+                       'chart8': chart8,
+                       'chart9': chart9,
+                       'chart10': chart10,
+                       'alfa': alfa,
+                       'beta': beta,
+                       'portmark': portfolio_max,
+                       'pearson': pearson,
+                       'kendall': kendall,
+                       'speaman': spearman,
+                       'dea': dea,
+                       'empresas': empresas,
+                       'chart11': chart11,
+                       'beta1': beta1,
+                       'alfa1': alfa1,
+                       'dea_method': metodo_dea,
+                       'sharpe_unif': sharp_unif,
+                       'inicio': inicio,
+                       'fim': fim,
+                       'empresas_ret_': empresas_ret_,
+                       'simulador': simulador,
+                       'empresas_ret': empresas_ret,
+                       'sharpe_m': sharp_m,
+                       'dados_dea': dados_dea,
+                       'resultado_simulador': resultado_simulador})
     return response
 
-def download_relatorio_dea(request):    
+
+def download_relatorio_dea(request):
     try:
         listing_list = request.session.get('listing_list')
         df_exx = pd.read_excel('var/tmp/django_cache/'+listing_list[0])
         response = HttpResponse(
-                    content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+            content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
         response['Content-Disposition'] = f'attachment; filename="{listing_list[0]}"'
         df_exx.to_excel(response)
-    #os.remove(listing_list[0])
     except:
-        messages.error('O arquivo não está mais disponível, favor refazer a análise.')
-    else: 
+        messages.error(
+            'O arquivo não está mais disponível, favor refazer a análise.')
+    else:
         listing_list = request.session.get('listing_list')
         df_exx = pd.read_excel('var/tmp/django_cache/'+listing_list[0])
         response = HttpResponse(
-                    content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+            content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
         response['Content-Disposition'] = f'attachment; filename="{listing_list[0]}"'
         df_exx.to_excel(response)
         return response
 
+
 def pacotes(request):
-    pacotes = pd.read_csv('requirements.txt',encoding='utf-16')
+    pacotes = pd.read_csv('requirements.txt', encoding='utf-16')
     pacotes.columns = ['Pacotes Utilizados']
     fig = go.Figure(data=[go.Table(
-    header=dict(values=list(pacotes.columns),
-                fill_color='paleturquoise',
-                align='center'),
-    cells=dict(values=[pacotes[f'{i}'] for i in list(pacotes.columns)],
-               fill_color='lavender',
-               align='center'))
+        header=dict(values=list(pacotes.columns),
+                    fill_color='paleturquoise',
+                    align='center'),
+        cells=dict(values=[pacotes[f'{i}'] for i in list(pacotes.columns)],
+                   fill_color='lavender',
+                   align='center'))
     ])
     fig.update_layout(
-    autosize=True,
-    height=calc_table_height(pacotes),
-    paper_bgcolor='rgb(255, 255, 255)',
+        autosize=True,
+        height=calc_table_height(pacotes),
+        paper_bgcolor='rgb(255, 255, 255)',
     )
     pacotes = fig.to_html()
     return render(request, 'sobre.html', {'pack': pacotes})
 
+
 def pacotes_download(request):
-   file_data = open('requirements.txt','r')
-   response = HttpResponse(file_data, content_type='application/text charset=utf-8')
-   response['Content-Disposition'] = 'attachment; filename="requirements.txt"'
-   return response
+    file_data = open('requirements.txt', 'r')
+    response = HttpResponse(
+        file_data, content_type='application/text charset=utf-8')
+    response['Content-Disposition'] = 'attachment; filename="requirements.txt"'
+    return response
+
 
 def app_atualizar(request):
     def task_2():
         atualizar_db()
     #t2 = Thread(target=task_2)
-    #t2.start()
+    # t2.start()
     alguemfezlogin()
     return render(request, 'app.html')
+
 
 def download_view_p(request):
     form = DownloadP(request.POST or None)
@@ -362,17 +368,18 @@ def download_view_p(request):
     form = DownloadP()
     return render(request, 'downloadp.html', {'form': form})
 
+
 def exemplo_dea(request):
     dados = pd.read_excel('exemplodea.xlsx')
     response = HttpResponse(
         content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
     response['Content-Disposition'] = 'attachment; filename="exemplodea.xlsx"'
-    dados.to_excel(response,index=False)
+    dados.to_excel(response, index=False)
     return response
-    
+
 
 def info_base(request):
-    import sqlite3 # Pacote do banco de dados
+    import sqlite3  # Pacote do banco de dados
     conn = sqlite3.connect('db.sqlite3')
     dados = pd.read_sql("""
                         SELECT  ss.name_stock ,
@@ -385,7 +392,7 @@ def info_base(request):
                         WHERE ss.symbol_stock NOT LIKE '^BVSP'
                         GROUP BY ss.name_stock , ss.symbol_stock
                         ORDER BY COUNT(DISTINCT(sp.id)) DESC,ss.name_stock 
-                        """,conn)
+                        """, conn)
     dados.columns = [
         'Nome Empresa',
         'Símbolo',
@@ -394,14 +401,13 @@ def info_base(request):
         'Qtd Dados Disponíveis'
     ]
     response = HttpResponse(
-                content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
     response['Content-Disposition'] = 'attachment; filename="dados_base_resumo.xlsx"'
-    dados.to_excel(response,index=False)
+    dados.to_excel(response, index=False)
     return response
 
 
 def upload_file(request):
-    #form = UploadFileForm(request.POST or None or request.FILES)
     if str(request.method) == "POST":
         form = UploadFileForm(request.POST, request.FILES)
         if form.is_valid():
@@ -419,7 +425,7 @@ def upload_file(request):
             print(wb.info())
             for i in range(len(colunas)):
                 if i == 0:
-                    indice_wb = colunas[i] 
+                    indice_wb = colunas[i]
                     continue
                 elif 'i -' in colunas[i]:
                     inputs_dea.append(colunas[i])
@@ -428,21 +434,24 @@ def upload_file(request):
             wb.index = wb[f'{indice_wb}']
             wb = wb.drop(columns=[f'{indice_wb}'])
             print(wb.info())
-            
-            uni_prob = DEAProblem(wb[inputs_dea], wb[outputs_dea], returns=dea_method)
+
+            uni_prob = DEAProblem(
+                wb[inputs_dea], wb[outputs_dea], returns=dea_method)
             myresults = uni_prob.solve()
 
             print(myresults['Status'])
             wb['Status'] = myresults['Status']
             wb[f'Efficiency - DEA {dea_method}'] = myresults['Efficiency']
             df_pesos = myresults['Weights']
-            col_df_pesos = ['weights'+ i for i in list(df_pesos.columns) ]
+            col_df_pesos = ['weights' + i for i in list(df_pesos.columns)]
             df_pesos.columns = col_df_pesos
             df_pesos.index = wb.index
-            wb_ = wb.merge(myresults['Weights'], how='inner',left_index=True,right_index=True)
+            wb_ = wb.merge(myresults['Weights'], how='inner',
+                           left_index=True, right_index=True)
             response = HttpResponse(
                 content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-            response['Content-Disposition'] = f'attachment; filename="resultados_dea_{dea_method}.xlsx"'
+            response[
+                'Content-Disposition'] = f'attachment; filename="resultados_dea_{dea_method}.xlsx"'
             wb_.to_excel(response)
             return response
     else:

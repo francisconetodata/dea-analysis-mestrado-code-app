@@ -1,5 +1,4 @@
 # from django.contrib.auth.models import AbstractBaseUser
-from operator import mod
 
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
@@ -56,11 +55,10 @@ class Stock(models.Model):
     date_modify = models.DateTimeField('Modificado', auto_now=True)
     data_entrada = models.CharField('Data Entrada', max_length=15)
     #setor = models.CharField('Setor', max_length=55)
+
     def __str__(self):
-        return self.symbol_stock 
+        return self.symbol_stock
 
-
-    
 
 class LucroLiquido(models.Model):
     symbol_stock = models.CharField('Símbolo Empresa', max_length=10)
@@ -72,7 +70,8 @@ class PriceDataStocks(models.Model):
     date_ref = models.DateField('Data Referência')
     price_close = models.FloatField('Preço Fechamento Ajustado')
     stock = models.ForeignKey(Stock, on_delete=models.CASCADE)
-    
+
+
 class DividendDataStocks(models.Model):
     date_ref = models.DateField('Data Referência')
     dividends = models.FloatField('Dividendos pago')
