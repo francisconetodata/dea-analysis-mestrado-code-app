@@ -384,8 +384,8 @@ def info_base(request):
     dados = pd.read_sql("""
                         SELECT  ss.name_stock ,
                         ss.symbol_stock ,
-                        MAX(cast(sp.date_ref as date )) as MaxDate,
-                        MIN(cast(sp.date_ref  as date)) as MinDate,
+                        MAX(sp.date_ref ) as MaxDate,
+                        MIN(sp.date_ref ) as MinDate,
                         COUNT(DISTINCT(sp.id)) AS QtdDadosDisponivel 
                         FROM stockanalysis_pricedatastocks as sp
                         INNER JOIN stockanalysis_stock ss on ss.id = sp.stock_id 

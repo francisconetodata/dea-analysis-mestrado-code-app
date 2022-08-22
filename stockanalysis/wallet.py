@@ -64,6 +64,14 @@ def mark_carteira(ticker,
                         ss.date_ref <= '{data_final}'
                         AND a.symbol_stock = '^BVSP'
                         """, conn)
+    df_iee_data = pd.read_sql(f"""
+                        SELECT ss.date_ref, ss.price_close
+                        FROM stockanalysis_pricedatastocks ss
+                        inner join stockanalysis_stock a on a.id = ss.stock_id
+                        where ss.date_ref > '{data_inicio}' AND 
+                        ss.date_ref <= '{data_final}'
+                        AND a.symbol_stock = '^IEE'
+                        """, conn)
     df_ibov_data.index = pd.to_datetime(df_ibov_data['date_ref'])
     df_ibov_data.columns = ['date_ref', '^BVSP']
     df_ibov_data = df_ibov_data.drop(columns='date_ref')
@@ -72,6 +80,14 @@ def mark_carteira(ticker,
         df_ibov_data/df_ibov_data.loc[df_ibov_data.index == df_ibov_data.index.min()]).copy()
     df_aux_ibov = df_ibov_data.astype(float).pct_change()
     df_aux_ibov = df_aux_ibov.dropna()
+    df_iee_data.index = pd.to_datetime(df_iee_data['date_ref'])
+    df_iee_data.columns = ['date_ref', '^IEE']
+    df_iee_data = df_iee_data.drop(columns='date_ref')
+    df_iee_data = df_iee_data.astype(float).dropna()
+    df_iee_data_ = (
+        df_iee_data/df_iee_data.loc[df_iee_data.index == df_iee_data.index.min()]).copy()
+    df_aux_iee = df_iee_data.astype(float).pct_change()
+    df_aux_iee = df_aux_iee.dropna()
     dados___ = dados.copy()
     dados___.sort_index(inplace=True)
     retornos = dados___.dropna().astype(float).pct_change()
@@ -295,17 +311,23 @@ def mark_carteira(ticker,
     )
     graph2 = barras_pl.to_html()
     df_ibov_data_.index = pd.to_datetime(df_ibov_data_.index)
+    df_iee_data_.index = pd.to_datetime(df_iee_data_.index)
     retorno_carteira.index = pd.to_datetime(retorno_carteira.index)
     retorno_carteira_unif.index = pd.to_datetime(retorno_carteira_unif.index)
     retorno_carteira = retorno_carteira.dropna()
     retorno_carteira_unif = retorno_carteira_unif.dropna()
     df_ibov_data_ = df_ibov_data_.dropna()
+    df_iee_data_ = df_iee_data_.dropna()
     df_final_merge = pd.merge((1+df_ibov_data.pct_change()).cumprod(),
+                              (1+df_iee_data.pct_change()).cumprod(),
+                              how='inner',
+                              left_index=True, right_index=True)
+    df_final_merge__ = pd.merge(df_final_merge,
                               retorno_carteira, how='inner',
                               left_index=True, right_index=True)
-    df_final_merge_ = pd.merge(df_final_merge, retorno_carteira_unif, how='inner',
+    df_final_merge_ = pd.merge(df_final_merge__, retorno_carteira_unif, how='inner',
                                left_index=True, right_index=True)
-    df_final_merge_.columns = ['Ibovespa', 'DEA(M)', 'DEA(1/N)']
+    df_final_merge_.columns = ['Ibovespa','IEE', 'DEA(M)', 'DEA(1/N)']
     df_final_merge_ = df_final_merge_.astype(float).dropna()
     fig_simulador = px.line(
         df_final_merge_,
@@ -414,10 +436,22 @@ def mark_carteira(ticker,
                         ss.date_ref <= '{data_simulacao}'
                         AND a.symbol_stock = '^BVSP'
                         """, conn)
+    iee = pd.read_sql(f"""
+                        SELECT ss.date_ref, ss.price_close
+                        FROM stockanalysis_pricedatastocks ss
+                        inner join stockanalysis_stock a on a.id = ss.stock_id
+                        where ss.date_ref > '{data_final}' AND 
+                        ss.date_ref <= '{data_simulacao}'
+                        AND a.symbol_stock = '^IEE'
+                        """, conn)
     ibov.index = pd.to_datetime(ibov['date_ref'])
     ibov.columns = ['date_ref', '^BVSP']
     ibov = ibov.drop(columns='date_ref')
     ibov = ibov / ibov.iloc[0]
+    iee.index = pd.to_datetime(iee['date_ref'])
+    iee.columns = ['date_ref', '^IEE']
+    iee = iee.drop(columns='date_ref')
+    iee = iee / iee.iloc[0]
     retorno = dados_yahoo.pct_change()
     retorno_acumulado = (1 + retorno).cumprod()
     retorno_acumulado.iloc[0] = 1
@@ -430,14 +464,16 @@ def mark_carteira(ticker,
     carteiran['saldo'] = carteiran.sum(axis=1)
     carteiran["retorno"] = carteiran['saldo'].pct_change()
     df_final_merge = pd.merge(
-        ibov, carteiram['saldo'], left_index=True, right_index=True, how='inner')
-    df_final_merge_ = df_final_merge.merge(
-        carteiran["saldo"], left_index=True, right_index=True, how='inner')
-    df_final_merge_.columns = ['Ibovespa', 'DEA(M)', 'DEA(1/N)']
+        ibov, iee, left_index=True, right_index=True, how='inner')
+    df_final_merge__ = df_final_merge.merge(
+        carteiram["saldo"], left_index=True, right_index=True, how='inner')
+    df_final_merge_ = df_final_merge__.merge(
+        carteiran['saldo'], left_index=True, right_index=True, how='inner')
+    df_final_merge_.columns = ['Ibovespa','IEE', 'DEA(M)', 'DEA(1/N)']
     fig_simulador = px.line(
         df_final_merge_,
         x=df_final_merge_.index,
-        y=['Ibovespa', 'DEA(M)', 'DEA(1/N)'],
+        y=['Ibovespa', 'DEA(M)', 'DEA(1/N)','IEE'],
         title='Simulação de investimento unitário em cada carteira - Comparação'
     ).update_layout(
 
