@@ -27,7 +27,8 @@ requetPOST.ipynb
 # Python #
 *.py[cod]
 *$py.class
-
+stockanalysis/bot.py
+stockanalysis/secrets.py
 # Distribution / packaging
 .Python build/
 develop-eggs/

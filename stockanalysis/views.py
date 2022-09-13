@@ -10,8 +10,8 @@ from django.shortcuts import render
 from pandas_datareader.data import DataReader
 
 from .atualizar_db import atualizar_db
-from .bot import (alguemfezanalise, alguemfezanalisedea, alguemfezdownload,
-                  alguemfezlogin)
+#from .bot import (#alguemfezanalise, #alguemfezanalisedea, #alguemfezdownload,
+#                  #alguemfezlogin)
 from .form import DownloadP, StockInput, StockInputCart
 from .models import PriceDataStocks, Stock
 from .pydea.dea import DEAProblem
@@ -112,7 +112,7 @@ def relatorio_carteira(request):
                                  metodo_dea,
                                  data_simulacao)
             chart5 = mark[0]
-            alguemfezanalise()
+            #alguemfezanalise()
             portfolio_max = mark[1]
             chart6 = mark[2]
             chart7 = mark[3]
@@ -343,7 +343,7 @@ def app_atualizar(request):
         atualizar_db()
     #t2 = Thread(target=task_2)
     # t2.start()
-    alguemfezlogin()
+    #alguemfezlogin()
     return render(request, 'app.html')
 
 
@@ -351,7 +351,7 @@ def download_view_p(request):
     form = DownloadP(request.POST or None)
     if str(request.method) == 'POST':
         if form.is_valid():
-            alguemfezdownload()
+            #alguemfezdownload()
             data_inicial = form.cleaned_data['data_inicial']
             data_final = form.cleaned_data['data_final']
             ticker = form.cleaned_data['ticker']
@@ -411,7 +411,7 @@ def upload_file(request):
     if str(request.method) == "POST":
         form = UploadFileForm(request.POST, request.FILES)
         if form.is_valid():
-            alguemfezanalisedea()
+            #alguemfezanalisedea()
             excel_file = request.FILES["file"]
             dea_method = str(form.cleaned_data['dea_method'])
             wb = pd.read_excel(excel_file)
